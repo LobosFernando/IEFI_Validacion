@@ -87,7 +87,7 @@ def Alumnos_Sistema():
         basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
         cDatos=basedatos.cursor()
         datos=Dni.get(),Nombre.get(),Apellido.get()
-        cDatos.execute("UPDATE alumnos SET DNI=%s, Nombre=%s, Apellido=%s WHERE IdAlumnos=6",datos)
+        cDatos.execute("UPDATE alumnos SET DNI=%s, Nombre=%s, Apellido=%s WHERE IdAlumnos="+IdAlumno.get(),datos)
         basedatos.commit()
         limpiar_campos()
         mostrar_alumnos()
