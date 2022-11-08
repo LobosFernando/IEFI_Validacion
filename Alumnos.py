@@ -65,8 +65,15 @@ def Alumnos_Sistema():
     tree.heading('#2', text="NOMBRE", anchor=CENTER)
     tree.column('#3', width=150)
     tree.heading('#3', text="APELLIDO", anchor=CENTER)
-    
-    
+    #---Permite seleccionar toda una fila en el Treeview
+    def seleccionarUsandoClick(event):
+        item=tree.identify('item',event.x,event.y)
+        IdAlumno.set(tree.item(item,"text"))
+        Dni.set(tree.item(item,"values")[0])
+        Nombre.set(tree.item(item,"values")[1])
+        Apellido.set(tree.item(item,"values")[2])
+
+        tree.bind("<Double-1>", seleccionarUsandoClick)
 
     # l2=Label(Alumnos, text="Nombre")
     # l2.place(x=60,y=10)
