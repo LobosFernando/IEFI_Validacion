@@ -24,46 +24,90 @@ def Alumnos_Sistema():
     Dni=StringVar()
     Nombre=StringVar()
     Apellido=StringVar()
-    #---Botones
-    tamWidth=15
-    b1=Button(Alumnos, text="Crear Alumno", height=2, width=tamWidth, bg="green")
-    b1.place(relx=0.025, y=20)
-    b2=Button(Alumnos, text="Modificar Alumno", height=2, width=tamWidth, bg="cyan")
-    b2.place(relx=0.275, y=20)
-    b3=Button(Alumnos, text="Eliminar Alumno", height=2, width=tamWidth, bg="red")
-    b3.place(relx=0.525, y=20)
-    b4=Button(Alumnos, text="Mostrar Alumnos", height=2, width=tamWidth, bg="pink")
-    b4.place(relx=0.775, y=20)
-    #---Entrada Datos y Cajas de texto
     
+    
+    #---Inicializamos los campos vacios y reestablecemos a vacío
+    def limpiar_campos():
+        Dni.set("")
+        Nombre.set("")
+        Apellido.set("")
+    
+    #--- Registrar Alumnos
+    def registrar_alumnos():
+        if (Dni.get() == ""):
+            eDni.focus()
+            messagebox.showinfo("Ingresar un DNI")
+            return
+        elif (Nombre.get() == ""):
+            eNombre.focus()
+            messagebox.showinfo("Ingresar un NOMBRE")
+            return
+        elif (Apellido.get() == ""):
+            eApellido.focus()
+            messagebox.showinfo("Ingresar un APELLIDO")
+            return
+        
+        basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
+        cDatos=basedatos.cursor()
+        
+        cDatos.execute("SELECT DNI FROM alumnos WHERE DNI='"+ Dni.get()+"'")
+        
+        if cDatos.fetchall():
+            messagebox.showinfo("Aviso","DNI registrado")
+        else:
+            sql= "INSERT INTO Alumnos (Dni, Nombre, Apellido) VALUES ('{0}','{1}', '{2}')".format(eDni.get(), eNombre.get(), eApellido.get())
+            cDatos.execute(sql)
+            basedatos.commit()
+            messagebox.showinfo("Registro", "Registro Exitoso")
+            limpiar_campos()
+        basedatos.close()
+    #---Mostrar Alumnos
+    def mostrar_alumnos():
+        basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
+        cDatos=basedatos.cursor()
+        registros=tree.get_children()
+        for elemento in registros:
+            tree.delete(elemento)
+        cDatos.execute("SELECT * FROM alumnos")
+        for row in cDatos:
+            tree.insert("",0,text=row[0], values=(row[1],row[2],row[3]))
+    #---Eliminar Alumnos
+    def eliminar_alumnos():
+        basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
+        cDatos=basedatos.cursor()
+        cDatos.execute("DELETE FROM alumnos WHERE IdAlumnos="+IdAlumno.get())
+        basedatos.commit()
+        mostrar_alumnos()
+        
+    #---Entrada Datos y Cajas de texto
     e1=Entry(Alumnos, textvariable=IdAlumno)
     
     entryWidht=20
-    l2=Label(Alumnos, text="DNI:", height=2)
-    l2.place(x=15, y=80)
-    e2=Entry(Alumnos, textvariable=Dni, width=entryWidht)
-    e2.place(x=45, y=85)
+    lDni=Label(Alumnos, text="DNI:", height=2)
+    lDni.place(x=15, y=80)
+    eDni=Entry(Alumnos, textvariable=Dni, width=entryWidht)
+    eDni.place(x=45, y=85)
     
-    l3=Label(Alumnos, text="NOMBRE:", height=2)
-    l3.place(x=180, y=80)
-    e3=Entry(Alumnos, textvariable=Nombre, width=entryWidht)
-    e3.place(x=240, y=85)
+    lNombre=Label(Alumnos, text="NOMBRE:", height=2)
+    lNombre.place(x=180, y=80)
+    eNombre=Entry(Alumnos, textvariable=Nombre, width=entryWidht)
+    eNombre.place(x=240, y=85)
     
-    l4=Label(Alumnos, text="APELLIDO:", height=2)
-    l4.place(x=380, y=80)
-    e4=Entry(Alumnos, textvariable=Apellido, width=entryWidht)
-    e4.place(x=445, y=85)
+    lApellido=Label(Alumnos, text="APELLIDO:", height=2)
+    lApellido.place(x=380, y=80)
+    eApellido=Entry(Alumnos, textvariable=Apellido, width=entryWidht)
+    eApellido.place(x=445, y=85)
     
     #---Treeview
     tree=ttk.Treeview(height=10, columns=('#0','#1','#2'))
     tree.place(x=15, y=150)
-    tree.column('#0',width=120)
+    tree.column('#0', width=120, anchor=CENTER)
     tree.heading('#0', text="IdAlumno", anchor=CENTER)
-    tree.column('#1',width=150)
+    tree.column('#1',width=150, anchor=CENTER)
     tree.heading('#1', text="DNI", anchor=CENTER)
-    tree.column('#2',width=150)
+    tree.column('#2',width=150, anchor=CENTER)
     tree.heading('#2', text="NOMBRE", anchor=CENTER)
-    tree.column('#3', width=150)
+    tree.column('#3', width=150, anchor=CENTER)
     tree.heading('#3', text="APELLIDO", anchor=CENTER)
     #---Permite seleccionar toda una fila en el Treeview
     def seleccionarUsandoClick(event):
@@ -72,25 +116,19 @@ def Alumnos_Sistema():
         Dni.set(tree.item(item,"values")[0])
         Nombre.set(tree.item(item,"values")[1])
         Apellido.set(tree.item(item,"values")[2])
-
-        tree.bind("<Double-1>", seleccionarUsandoClick)
-
-    # l2=Label(Alumnos, text="Nombre")
-    # l2.place(x=60,y=10)
-    # e2=Entry(Alumnos, textvariable=Nombre, width=50)
-    # e2.place(x=100, y=10)
-
-    # l3=Label(Alumnos, text="Apellido")
-    # l3.place(x=50,y=40)
-    # e3=Entry(Alumnos, textvariable=Apellido)
-    # e3.place(x=100, y=40)
-
-    # l4=Label(Alumnos, text="Dni")
-    # l4.place(x=280,y=40)
-    # e4=Entry(Alumnos, textvariable=Dni, width=10)
-    # e4.place(x=320, y=40)
-
+    #---Tree Bind ERROR EN TABULACIONES
+    tree.bind("<Double-1>", seleccionarUsandoClick)
     
+    #---Botones
+    tamWidth=15
+    b1=Button(Alumnos, text="Crear Alumno", height=2, width=tamWidth, bg="green", command=registrar_alumnos)
+    b1.place(relx=0.025, y=20)
+    b2=Button(Alumnos, text="Modificar Alumno", height=2, width=tamWidth, bg="cyan")
+    b2.place(relx=0.275, y=20)
+    b3=Button(Alumnos, text="Eliminar Alumno", height=2, width=tamWidth, bg="red",command=eliminar_alumnos)
+    b3.place(relx=0.525, y=20)
+    b4=Button(Alumnos, text="Mostrar Alumnos", height=2, width=tamWidth, bg="pink", command=mostrar_alumnos)
+    b4.place(relx=0.775, y=20)
     
     mainloop()
    
