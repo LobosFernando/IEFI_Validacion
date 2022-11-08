@@ -31,6 +31,16 @@ def Alumnos_Sistema():
         Dni.set("")
         Nombre.set("")
         Apellido.set("")
+    #---Mostrar Alumnos
+    def mostrar_alumnos():
+        basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
+        cDatos=basedatos.cursor()
+        registros=tree.get_children()
+        for elemento in registros:
+            tree.delete(elemento)
+        cDatos.execute("SELECT * FROM alumnos")
+        for row in cDatos:
+            tree.insert("",0,text=row[0], values=(row[1],row[2],row[3]))
     
     #--- Registrar Alumnos
     def registrar_alumnos():
@@ -60,25 +70,27 @@ def Alumnos_Sistema():
             basedatos.commit()
             messagebox.showinfo("Registro", "Registro Exitoso")
             limpiar_campos()
+            mostrar_alumnos()
         basedatos.close()
-    #---Mostrar Alumnos
-    def mostrar_alumnos():
-        basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
-        cDatos=basedatos.cursor()
-        registros=tree.get_children()
-        for elemento in registros:
-            tree.delete(elemento)
-        cDatos.execute("SELECT * FROM alumnos")
-        for row in cDatos:
-            tree.insert("",0,text=row[0], values=(row[1],row[2],row[3]))
+    
     #---Eliminar Alumnos
     def eliminar_alumnos():
         basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
         cDatos=basedatos.cursor()
         cDatos.execute("DELETE FROM alumnos WHERE IdAlumnos="+IdAlumno.get())
         basedatos.commit()
+        limpiar_campos()
         mostrar_alumnos()
-        
+    
+    #---Modificar Alumnos
+    def modificar_alumnos():
+        basedatos = pymysql.connect(host="localhost", user="root", passwd="",db="sistemaproa")
+        cDatos=basedatos.cursor()
+        datos=Dni.get(),Nombre.get(),Apellido.get()
+        cDatos.execute("UPDATE alumnos SET DNI=%s, Nombre=%s, Apellido=%s WHERE IdAlumnos=6",datos)
+        basedatos.commit()
+        limpiar_campos()
+        mostrar_alumnos()
     #---Entrada Datos y Cajas de texto
     e1=Entry(Alumnos, textvariable=IdAlumno)
     
@@ -123,7 +135,7 @@ def Alumnos_Sistema():
     tamWidth=15
     b1=Button(Alumnos, text="Crear Alumno", height=2, width=tamWidth, bg="green", command=registrar_alumnos)
     b1.place(relx=0.025, y=20)
-    b2=Button(Alumnos, text="Modificar Alumno", height=2, width=tamWidth, bg="cyan")
+    b2=Button(Alumnos, text="Modificar Alumno", height=2, width=tamWidth, bg="cyan", command=modificar_alumnos)
     b2.place(relx=0.275, y=20)
     b3=Button(Alumnos, text="Eliminar Alumno", height=2, width=tamWidth, bg="red",command=eliminar_alumnos)
     b3.place(relx=0.525, y=20)
